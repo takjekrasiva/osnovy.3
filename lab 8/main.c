@@ -35,8 +35,8 @@ int main(void)
                 max_length = letter_count;
             }
             word = NO;
-            symb = NO;
-            letter_count = 0;
+            symb = NO; // нет лишнего символа
+            letter_count = 0; // обнуляется, новое слово
         }
         else
         {
@@ -45,14 +45,11 @@ int main(void)
             {
                 symb = YES; // в слове есть лишний символ
             }
-            if (word == NO) // найдена первая буква слова
-            {
-                word_ptr = in_ptr; // запомнить адрес начала слова
-            }
+          
             word = YES;
         }
         in_ptr++;
-    } while (c != '\0');
+    } while (c != '\0'); // все слова проверены
 
     in_ptr = original;
 
@@ -64,12 +61,12 @@ int main(void)
         {
             if (word == YES && symb == NO && letter_count != max_length || symb == YES)
             {
-                while (word_ptr < in_ptr)
+                while (word_ptr < in_ptr) 
                 {
-                    *out_ptr++ = *word_ptr++; // копирование слова
+                    *out_ptr++ = *word_ptr++; // копирование слова, запись слова
                 }
             }
-            else
+            else // символы=макс
             {
                 while (word_ptr < in_ptr)
                 {
@@ -83,7 +80,7 @@ int main(void)
         }
         else
         {
-            letter_count++;
+            letter_count++; // пропуск макс слова
             if ((c < 'a' || c > 'z') && (c < 'A' || c > 'Z')) // проверка, яляется ли этот символ лишним
             {
                 symb = YES; // в слове есть лишний символ
