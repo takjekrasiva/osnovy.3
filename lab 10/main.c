@@ -1,50 +1,106 @@
+// Скопировать содержимое текстового файла, удаляя строки, если они уже встречались ранее.
+
+#pragma warning (disable : 4996)
 #include <stdio.h>
-#define BUF_SIZE 1000 // РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ Р»РёРЅРёРё
+#include <stdlib.h>
+#include <string.h>
 
-int compareLines(char *left, char *right) { // С„СѓРЅРєС†РёСЏ СЃСЂР°РІРЅРµРЅРёСЏ Р»РёРЅРёР№
-    while (1) {
-        if (*left == '\0' || *left == '\n') { // РІСЃРµ РЅРµРїРѕСЃР»РµРґРЅРёРµ СЃС‚СЂРѕРєРё СЃС‡РёС‚С‹РІР°СЋС‚СЃСЏ РєР°Рє "line\n\0", РїРѕСЃР»РµРґРЅСЏСЏ РєР°Рє "line\0"
-            if (*right == '\0' || *right == '\n') return 0; // СЌС‚Рѕ СЃСЂР°РІРµРЅРёРµ РѕСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РЅР° \0 РёР»Рё \n
+#define NO 0
+#define YES 1
 
-            return -1;
-        }
+int main(void)
+{
+	int flag, sflag, strlen, strcnt, i;
+	char **strarr, *str, c;
+	FILE *ifd, *ofd;
+	
+	// открытие файлов и проверка на ошибки
+	if ((ifd = fopen("file1.txt", "r")) == NULL || (ofd = fopen("file2.txt", "w")) == NULL)
+	{
+		printf("file can not open\n");
+		system("pause");
+		return -1;
+	}
 
-        if (*left != *right) {
-            return -1;
-        }
+	strarr = NULL;	// массив строк пустой
+	str = NULL;		// текущаЯ строка пустаЯ
+	flag = NO;		// опускаем флаг строки
+	sflag = NO;		// опускаем флаг пробела
+	strlen = 0;		// обнулЯем длину строки
+	strcnt = 0;		// обнулЯем счетчик строк
 
-        left++;
-        right++;
-    }
-}
+	// повторЯем пока не дойдем до конца файла
+	do {
+		c = fgetc(ifd);	// берем текущий символ из файла
 
-int main() {
-    char currentLine[BUF_SIZE]; // С‚РµРєСѓС‰Р°СЏ Р»РёРЅРёСЏ
-    char previousLine[BUF_SIZE]; // РїСЂРµРґС‹РґСѓС‰Р°СЏ Р»РёРЅРёСЏ
-    FILE *inputFile = fopen("input.txt", "r"); // С„Р°Р№Р» РЅР° РІС…РѕРґ
-    FILE *outputFile = fopen("output.txt", "w"); // С„Р°Р№Р» РЅР° РІС‹С…РѕРґ
+		// если конец строки
+		if (c == '\n' || c == EOF)
+		{
+			str = (char*)realloc(str, (strlen + 2) * sizeof(char));	// выделЯем памЯть
+			str[strlen++] = '\n';	// записываем символ перевода строки
+			str[strlen] = '\0';		// записываем символ конца строки
+			
+			flag = YES;	// поднимаем флаг
+			// проходим по всем сохраненным строкам
+			for (i = 0; i < strcnt; i++)
+			{
+				// если текущаЯ строка совпадает с уже найденной строкой
+				if (strcmp(str, strarr[i]) == 0)
+				{
+					flag = NO;	// опускаем флаг
+					break;	// выходим из цикла
+				}
+			}
+			
+			// если флаг осталсЯ поднЯт
+			if (flag == YES)
+			{
+				strarr = (char**)realloc(strarr, (strcnt + 1) * sizeof(char*));	// выделЯем памЯть в массиве строк
+				strarr[strcnt++] = str;		// записываем туда текущую строку
+			}
+			// если флаг был опущен
+			else
+			{
+				free(str);	// удалЯем текущую строку
+			}
 
-    int lineIndex = 0; // РёРЅРґРµРєСЃ Р»РёРЅРёР№, СЃР±СЂРѕСЃ
-    while (fgets(currentLine, BUF_SIZE, inputFile)) { // СЃС‡РёС‚С‹РІР°РµРј РёСЃС…РѕРґРЅС‹Р№ С„Р°Р№Р» РїРѕ Р»РёРЅРёСЏРј
+			str = NULL;		// строка пустаЯ
+			sflag = NO;		// опускаем флаг разделителЯ
+			flag = NO;		// опускаем флаг строки
+			strlen = 0;		// обнулЯем длину текущей строки
+		}
+		// если нашли пробел или табулЯцию
+		else if (c == ' ' || c == '\t')
+		{
+			// если строка началась и это первый разделитель
+			if (sflag == NO && flag == YES)
+			{
+				str = (char*)realloc(str, (strlen + 1) * sizeof(char));		// выделЯем памЯть в строке
+				str[strlen++] = ' ';	// записываем в строку пробел
+				sflag = YES;	// поднимаем флаг разделителЯ
+			}
+		}
+		// иначе
+		else
+		{
+			str = (char*)realloc(str, (strlen + 1) * sizeof(char));	// выделЯем памЯть в строке
+			str[strlen++] = c;	// записываем в нее текущий символ
+			flag = YES;		// поднимаем флаг строки
+			sflag = NO;		// опускаем флаг разделителЯ
+		}
+	} while (c != EOF);
+	fclose(ifd);	// закрываем входной файл
+	
+	// проходим по всем сохраненным строкам
+	for (i = 0; i < strcnt; i++)
+	{
+		fputs(strarr[i], ofd);	// выводим строку в файл
+		free(strarr[i]);		// освобождаем выделенную памЯть
+	}
+	fclose(ofd);	// закрываем выходной файл
+	free(strarr);	// освобождаем памЯть
 
-        int isDuplicate = 0; // С„Р»Р°Рі РЅР°Р№РґРµРЅРЅРѕРіРѕ РґСѓР±Р»РёРєР°С‚Р° Р»РёРЅРёРё
-        FILE *inputFile2 = fopen("input.txt", "r");  // РѕС‚РєСЂС‹РІР°РµРј РµРіРѕ РЅР° С‡С‚РµРЅРёРµ РµС‰Рµ СЂР°Р·
-        for (int previousLineIndex = 0; previousLineIndex < lineIndex; previousLineIndex++) { // РїСЂРѕС…РѕРґРёРј С†РёРєР» Р»РёРЅРёР№
-            fgets(previousLine, BUF_SIZE, inputFile2); // РґРѕСЃС‚Р°С‘Рј Р»РёРЅРёСЋ
-            if (compareLines(currentLine, previousLine) == 0) { // СЃСЂР°РІРЅРёРІР°РµРј СЃ РїСЂРµРґС‹РґСѓС‰РµР№
-                isDuplicate = 1; // РµСЃР»Рё РѕРЅРё СЂР°РІРЅС‹, РјР°СЂРєРёСЂСѓРµРј СЌС‚Рѕ РІРѕ С„Р»Р°Рі
-                break;
-            }
-        }
-        fclose(inputFile2); // Р·Р°РєСЂС‹РІР°РµРј С„Р°Р№Р»
-        lineIndex++; // РїРµСЂРµС…РѕРґРёРј Рє СЃР»РµРґСѓСЋС‰РµР№ Р»РёРЅРёРё
-
-        if (isDuplicate) continue; // РµСЃР»Рё РЅР°С€Р»Рё РґСѓР±Р»РёРєР°С‚, РїРµСЂРµС…РѕРґРёРј Рє РїРѕРёСЃРєСѓ СЃР»РµРґСѓСЋС‰РµРіРѕ
-
-        fputs(currentLine, outputFile); // СЃРєР»Р°РґС‹РІР°РµРј СѓРЅРёРєР°Р»СЊРЅСѓСЋ Р»РёРЅРёСЋ РІ РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»
-    }
-
-    fclose(inputFile); // Р·Р°РєСЂС‹РІР°РµРј РІС…РѕРґРЅРѕР№ С„Р°Р№Р»
-    fclose(outputFile); // Р·Р°РєСЂС‹РІР°РµРј РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»
-    return 0;
+	printf("Program complete\n");
+	system("pause");
+	return 0;
 }
