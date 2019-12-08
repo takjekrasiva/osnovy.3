@@ -1,0 +1,131 @@
+#define _CRT_SECURE_NO_WARNINGS
+printf("%c", *ptr);
+#include <stdio.h>
+#include <string.h>
+#include <windows.h>
+
+const char a1[] = "int";
+const char a2[] = "char";
+const char a3[] = "double";
+const char a4[] = "float";
+const char a5[] = "long";
+const char a6[] = "signed";
+const char a7[] = "unsigned";
+const char a8[] = "short";
+
+int search(const char* line); char a;
+
+int main() {
+	HANDLE hStdout;
+	WORD foregroundColor0;
+	WORD foregroundColor1;
+	hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+	foregroundColor0 = FOREGROUND_BLUE;
+	SetConsoleTextAttribute(hStdout, foregroundColor0);
+	FILE *fin;
+	char line[100];
+	char *ptr = NULL;
+	int flag;
+	int flag1 = 0;
+	int flag2 = 0;
+	int flag3 = 0;
+	int flag4 = 0;
+	fin = fopen("base.txt", "r");
+	if (fin == NULL) {
+		system("pause");
+	}
+	while (!feof(fin)) {
+		fgets(line, 1000, fin);
+		flag1 = 0;
+		ptr = line; 
+		while (*ptr != '\n' && *ptr != '\0') {
+			if (*ptr == '/' && *(ptr + 1) == '/' && flag1 == 0)
+				flag1 = 1;
+			if (*ptr == '/' && *(ptr + 1) == '*' && flag2 == 0)
+				flag2 = 1;
+			if (*ptr == '*' && *(ptr + 1) == '/' && flag2 == 1)
+				flag2 = 0;
+			if (*ptr == '\"' && flag3 == 1) {
+				flag3 = 0;
+				goto n;
+			}
+			if (*ptr == '\"' && flag3 == 0) {
+				flag3 = 1;
+				goto n;
+			}
+			if (*ptr == '"' && flag4 == 1) {
+				flag4 = 0;
+				goto n;
+			}
+			if (*ptr == '"' && flag4 == 0) {
+				flag4 = 1;
+				goto n;
+			}
+		n:;
+			if (flag1 == 0 && flag2 == 0 && flag3 == 0 && flag4 == 0) {
+				if (*(ptr + 1) == ' ' || *(ptr + 1) == '\\') {
+					while (*(ptr) == ' ') {
+						printf("%c", *ptr);
+						ptr++;
+					}
+					if (*ptr == '\\') {
+						do {
+							printf("%c", *ptr);
+							printf("\n");
+							fgets(line, 1000, fin);
+							ptr = line;
+							while (*ptr == ' ' || *ptr == '\t') {
+								printf("%c", *ptr);
+								ptr++;
+							}
+						} while (*ptr == '\\');
+					}
+				}
+				char* tmp;
+				char str[100];
+				tmp = str;
+				while (*ptr != ';' && *ptr != '\n' && *ptr != '\0') {
+					*tmp = *ptr;
+					ptr++;
+					tmp++;
+				}
+				if (*ptr == ';' && *(ptr - 1) == ')' && search(line) == 't') {
+					SetConsoleTextAttribute(hStdout, foregroundColor0);
+					tmp = line;
+					while (*tmp != '\n') {
+						printf("%c", *tmp);
+						tmp++;
+					}
+				}
+				else {
+					SetConsoleTextAttribute(hStdout, 7);
+					tmp = line;
+					while (*tmp != '\n') {
+						printf("%c", *tmp);
+						tmp++;
+					}
+				}
+			}
+			else {
+				SetConsoleTextAttribute(hStdout, 7);
+				printf("%c", *ptr);
+			}
+			ptr++;
+		}
+		printf("\n");
+	}
+	system("pause");
+}
+
+char search(const char* line) {
+	if (strstr(line, a1) == NULL)
+		if (strstr(line, a2) == NULL)
+			if (strstr(line, a3) == NULL)
+				if (strstr(line, a4) == NULL)
+					if (strstr(line, a5) == NULL)
+						if (strstr(line, a6) == NULL)
+							if (strstr(line, a7) == NULL)
+								if (strstr(line, a8) == NULL)
+									return 'f';
+	return 't';
+}
