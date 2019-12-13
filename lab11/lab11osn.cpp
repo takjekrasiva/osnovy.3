@@ -47,7 +47,7 @@ int main() {
 				flag2 = 1;
 			if (*ptr == '*' && *(ptr + 1) == '/' && flag2 == 1)//Если вышли, то 0
 				flag2 = 0;
-			if (*ptr == '\"' && flag3 == 1) { //Вот тут мне крайне лень расписывать :) поэтому если не поймёшь, то запишу голосовое
+			if (*ptr == '\"' && flag3 == 1) { 
 				flag3 = 0;
 				goto n;
 			}
@@ -131,7 +131,7 @@ char search(const char* line) {
 	char* t6 = strstr(line, a6);
 	char* t7 = strstr(line, a7);
 	char* t8 = strstr(line, a8);
-	char* t9 = strstr(line, a9);//Ищем в доп строке один из параметров(прочитай шо делает strstr)
+	char* t9 = strstr(line, a9);//Ищем в доп строке один из параметров
 	if (t1 == NULL && t2 == NULL && t3 == NULL && t4 == NULL && t5 == NULL && t6 == NULL && t7 == NULL && t8 == NULL && t9 == NULL)//Если таковых нет, то возращаем f
 		return 'f';
 	if (t1 != NULL) {//Тут 9 таких условий, все идентичны, ну кроме последнего 
